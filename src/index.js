@@ -1,7 +1,7 @@
 
 // Importing from other file
-import dotenv from "dotenv"
-dotenv.config();
+// import dotenv from "dotenv"
+// dotenv.config();
 import connectDB from "./db/DBconnection.js";
 import app from "./app.js";
 

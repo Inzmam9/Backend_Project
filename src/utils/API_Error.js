@@ -1,4 +1,4 @@
-class ApiResquest extends Error{
+class ApiError extends Error{
     constructor(
          statusCode=false,
         message="Something went wrong",
@@ -8,8 +8,8 @@ class ApiResquest extends Error{
        
     
     super(message)
-        this.message=this.message
-        this.statusCode=this.statusCode
+        this.message=message
+        this.statusCode=statusCode
         this.errors=errors
         this.success=false
 
@@ -24,4 +24,4 @@ class ApiResquest extends Error{
 
 }
 }
-export default ApiResquest
+export default ApiError

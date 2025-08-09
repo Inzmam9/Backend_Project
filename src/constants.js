@@ -1,2 +1,9 @@
-export const DB_NAME="systm_db"
-CORS_ORIGIN=* 
+ export const DB_NAME="systm_db"
+// CORS_ORIGIN= *
+// ACCESS_TOKEN_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+// ACCESS_TOKEN_EXPIRY=1d
+// REFRESH_TOKEN_SECRET=chai-aur-code// it could be any string but in production grade project long complex strings are generated
+// REFRESH_TOKEN_EXPIRY=10d
+// CLOUDINARY_CLOUD_NAME=dw8jyuwuj
+// CLOUDINARY_API=188192475353939
+// CLOUDINARY_SECRET= 5HVXn60e6o5OwRZkr5dgMZCHT1g
