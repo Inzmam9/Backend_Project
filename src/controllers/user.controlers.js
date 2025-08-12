@@ -149,6 +149,7 @@ const userRegister= asyncHandler(async(req,res,next)=>{
                 if(!user){
                   throw new ApiError(404,"User not found")
                 }
+                console.log("user login infor",user?.userName,user?.userEmail)
 
                 const isPasswordCorrect=await user.isPasswordCorrect(password)
                 if(!isPasswordCorrect){
@@ -192,7 +193,7 @@ if(!user){
   throw new ApiError(502, "User not found in logout function")
 }
 await User.findOneAndUpdate(user,{
-    $set:{refreshTokens:undefined,
+    $set:{refreshTokens:1,
 
         new:true
     }
@@ -236,11 +237,11 @@ if(!user){
   throw new ApiError(505,"user not found")
 }
 //const userDecodedToken=jwt.veri
- console.log("\n\nPrinting databse token",user?.refreshTokens)
+ //console.log("\n\nPrinting databse token",user?.refreshTokens)
 // console.log("User mil gya")
-// console.log("Printing resfrehToken ",incomingRefreshToken)
-// console.log("Printing user reffresh",user?.refreshTokens)
-if(incomingRefreshToken!==user.refreshTokens){
+ console.log("Printing resfrehToken ",incomingRefreshToken)
+ console.log("Printing user reffresh",user?.refreshTokens)
+if(incomingRefreshToken!==user?.refreshTokens){
   throw new ApiError(500,"Unauthoirized refresh token")
 }
 
@@ -251,8 +252,8 @@ const options={
   secure:true
 }
 return res.status(200)
-.cookie("accessToken",refreshToken,options)
-.cookie("refreshToken",accessToken,options)
+.cookie("refreshToken",refreshToken,options)
+.cookie("accessToken",accessToken,options)
 .json(new ApiResponse("Refresh token updated successfully",200,{accessToken:accessToken,refreshToken:refreshToken}))
 
   
@@ -278,11 +279,13 @@ return res.status(200)
 const changeCurrentPassword=asyncHandler(async(req,res)=>{
 
   const {incommingPasswrod,setNewPassword}=req.body
+ // console.log(incommingPasswrod)
   if(!incommingPasswrod){
     throw new ApiError(402,"Password not recieved in change current password method")
 
   }
-const user=req.user
+const user=await User.findById(req.user?._id)
+console.log(user)
 const passwordVerify=await user.isPasswordCorrect(incommingPasswrod)
 if(!passwordVerify){
   throw new ApiError(505,"Password not matched")
@@ -295,13 +298,39 @@ user.save({validateBeforSave:false})
  
 // }).select("-password -refreshTokens -accessToken")
 
-return res.status(200).json(new ApiResponse("Password changed Successfully",200,{updateUser}))
+return res.status(200).json(new ApiResponse("Password changed Successfully",200,{user}))
 
 
 })
 
 // get current user
 
+
+
+
+ //chnanging profile and cover photo
+   const changeAvatar=asyncHandler(async(req,res)=>{
+    console.log("Logging the details of new avatar recieved in changeAvatar",req.file)
+
+const incominAvatar= await uploadOnCloudinary(req.file?.path)
+if(!incominAvatar){
+  throw new ApiError(500, "Error in uploading file on cloudinary")
+}
+console.log("reached before finding user")
+const userId=await User.findOneAndUpdate(req.user?._id,{
+  $set:{avatar:incominAvatar.url,}
+  
+},{new:true})
+console.log("The avatar is updated")
+return res.status(200).json(new ApiResponse("Avatar updated ",200,{userId}))
+        
+      })
+
 export {userRegister,
-        userLogin,userLogOut,createNewRefreshToken,changeCurrentPassword
+        userLogin,userLogOut,createNewRefreshToken,changeCurrentPassword,changeAvatar
       }  
+
+
+      //chnanging profile and cover photo
+
+   

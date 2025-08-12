@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {userRegister} from "../controllers/user.controlers.js";
 import{upload} from "../middlewares/multer.middleware.js"
-import {userLogin,userLogOut,createNewRefreshToken,changeCurrentPassword} from "../controllers/user.controlers.js";
+import {userLogin,userLogOut,createNewRefreshToken,changeCurrentPassword,changeAvatar} from "../controllers/user.controlers.js";
 import { authorization } from "../middlewares/authorizatoin.middleware.js";
 const router=Router()
 router.route("/register").post(upload.fields([{
@@ -20,4 +20,5 @@ router.route("/login").post(userLogin)
 router.route("/logout").post(authorization, userLogOut)
 router.route("/refresh-token").post(createNewRefreshToken)
 router.route("/change-password").post(authorization,changeCurrentPassword)
+router.route("/change-avatar").post(authorization,upload.single("newAvatar"),changeAvatar)
 export default router

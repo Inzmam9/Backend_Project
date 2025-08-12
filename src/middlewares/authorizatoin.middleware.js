@@ -55,7 +55,7 @@ export const verify = jwt.verify;
 
 // 
 
-const authorization=async(req, res, next)=>
+const authorization=async(req, _, next)=>
 
 {
     const accessToken=req.cookies?.accessToken||req.header("Authorization")?.replace("Bearer ","")
@@ -69,12 +69,16 @@ const authorization=async(req, res, next)=>
         throw new ApiError(500,"Token cant be verified")
     }
     console.log("cookie status verified")
-const user=await User.findOne(accessToken?._id)
+//const user=await User.findOne(accessToken?._id).select("-password -refreshTokens")
+//const user=await User.findById(verifiedStatus?._id).select("-password -refreshTokens")
+const user=await User.findById(verifiedStatus?._id).select("-password")
+
 console.log("Logging uer",user)
 if(!user){
     throw new ApiError(501, "User not found")
 }
 req.user=user
+console.log("LOggoin user details",user.userName)
 //res.status(200, new ApiResponse("User log out",200,{}))  
 next()
 }
