@@ -64,7 +64,7 @@ cloudinary.config({
   
   
   
-  
+      //wrong way of declearing cloud configuration
   // cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
   // cloud_api_key: process.env.CLOUDINARY_API, 
   // cloud_api_secret: process.env.CLOUDINARY_SECRET
@@ -76,19 +76,19 @@ const response=await cloudinary.uploader.upload(path,{
     use_filename: true,
     resource_type: "auto"
 })
-//try{
+try{
 console.log("File uploaded on cloudinarry")
 console.log("removing file from local storage")
 fs.unlinkSync(path)
 return response
 
-// }
+}
 
 
-// catch(error){
-// new ApiError(500, "Error in uploadinig file on cloudinary")
-// fs.unlinkSync(path)
-// }
+catch(error){
+new ApiError(500, "Error in uploadinig file on cloudinary")
+fs.unlinkSync(path)
+}
 
 }
 export{uploadOnCloudinary}
