@@ -4,58 +4,64 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/fileUpload.js";
 import { ApiResponse } from "../utils/API_Response.js";
 import jwt from "jsonwebtoken"
+import { resolveSoa } from "dns";
+import mongoose from "mongoose";
 const userRegister= asyncHandler(async(req,res,next)=>{
         //res.status(200).json({message:"Run seccessfully"})
-
-        const {name, fullname,email,password}= await req.body
-        console.log(`The email is ${email},  Name is ${name}`)
-
-          console.log("Logining the req.body", req.body)
-        if([name, fullname,email].some(field=>(field?.trim==""))){
-                throw new ApiError(200,"All fields are required")
-        }
-        const checkUser=await User.findOne({email, fullname})
-        //checking if user already exists 
-           if(checkUser ){
-            throw new ApiError(234,"Cananot resgister User already exsist")
-           }
-           else{
-            console.log(`User with fullname${fullname} is register successfully\n`)
-           }
-            //pushing user into database
-            const avatarLocalPath=req.files?.avatar[0]?.path
-            const coverImageLocalPath=req.files?.coverImage[0]?.path
-            console.log("Logining the req.file\n ")
-            console.log(req.files)
-            if(!avatarLocalPath){
-                throw new ApiError(300, "Avatar is required field\n")
-            }
-            const avatarUrl= await uploadOnCloudinary(avatarLocalPath)
-            const coverImageUrl= await uploadOnCloudinary(coverImageLocalPath)
-            const createUser= await User.create({
-                    userName:name,
-                    userEmail:email,
-                    userFullName:fullname.toLowerCase(),
-                    avatar:avatarUrl.url,
-                    coverImage:coverImageUrl.url || "",
-                    password:password,
-            })
-            console.log("User created ")
-           const findUser =await User.findById(createUser._id).select(    // the findById function returns all fields(values) if found
-                                                        // select function unselct them
-            " -refreshToken"
-           )
-            if(!findUser){
-                throw new ApiError(500, "Something went wrong while registering user\n")
-
-            }
-           
-
-
-          //Sending response
-          return await res.status(200).json(new ApiResponse("All good", findUser, 201))
-        
-
+try {
+  
+          const {name, fullname,email,password}= await req.body
+          console.log(`The email is ${email},  Name is ${name}`)
+  
+            console.log("Logining the req.body", req.body)
+          if([name, fullname,email].some(field=>(field?.trim==""))){
+                  throw new ApiError(200,"All fields are required")
+          }
+          const checkUser=await User.findOne({email, fullname})
+          //checking if user already exists 
+             if(checkUser ){
+              throw new ApiError(234,"Cananot resgister User already exsist")
+             }
+             else{
+              console.log(`User with fullname${fullname} is register successfully\n`)
+             }
+              //pushing user into database
+              const avatarLocalPath=req.files?.avatar[0]?.path
+              const coverImageLocalPath=req.files?.coverImage[0]?.path
+              console.log("Logining the req.file\n ")
+              console.log(req.files)
+              if(!avatarLocalPath){
+                  throw new ApiError(300, "Avatar is required field\n")
+              }
+              const avatarUrl= await uploadOnCloudinary(avatarLocalPath)
+              const coverImageUrl= await uploadOnCloudinary(coverImageLocalPath)
+              const createUser= await User.create({
+                      userName:name,
+                      userEmail:email,
+                      userFullName:fullname.toLowerCase(),
+                      avatar:avatarUrl.url,
+                      coverImage:coverImageUrl.url || "",
+                      password:password,
+              })
+              console.log("User created ")
+             const findUser =await User.findById(createUser._id).select(    // the findById function returns all fields(values) if found
+                                                          // select function unselct them
+              " -refreshToken"
+             )
+              if(!findUser){
+                  throw new ApiError(500, "Something went wrong while registering user\n")
+  
+              }
+             
+  
+  
+            //Sending response
+            return await res.status(200).json(new ApiResponse("All good", findUser, 201))
+          
+  
+} catch (error) {
+  throw new ApiError(500,`an error ${error} occured in user registriatoin`)
+}
         }
 )
 
@@ -312,22 +318,174 @@ return res.status(200).json(new ApiResponse("Password changed Successfully",200,
    const changeAvatar=asyncHandler(async(req,res)=>{
     console.log("Logging the details of new avatar recieved in changeAvatar",req.file)
 
-const incominAvatar= await uploadOnCloudinary(req.file?.path)
-if(!incominAvatar){
-  throw new ApiError(500, "Error in uploading file on cloudinary")
-}
-console.log("reached before finding user")
-const userId=await User.findOneAndUpdate(req.user?._id,{
-  $set:{avatar:incominAvatar.url,}
+try {
+  const incominAvatar= await uploadOnCloudinary(req.file?.path)
+  if(!incominAvatar){
+    throw new ApiError(500, "Error in uploading file on cloudinary")
+  }
+  console.log("reached before finding user")
+  const userId=await User.findOneAndUpdate(req.user?._id,{
+    $set:{avatar:incominAvatar.url,}
+    
+  },{new:true})
+  console.log("The avatar is updated")
+  return res.status(200).json(new ApiResponse("Avatar updated ",200,{userId}))
+          
+} catch (error) {
+  throw new ApiError(500, "Something went wrong in changing avatar")
   
-},{new:true})
-console.log("The avatar is updated")
-return res.status(200).json(new ApiResponse("Avatar updated ",200,{userId}))
-        
+
+  
+}
       })
+      // Getting subcriber
+      const getChannel=asyncHandler(async(req,res)=>{
+        const username=req.params?.userName
+        if(!username){
+          throw new ApiError(500,"Params not recieved in get-subscriber")
+        }
+        const channel =await User.aggregate([
+          {
+            $match: {
+              userName:username
+              
+            }
+          },
+          {
+            $lookup:{
+              from:"subscriptions",
+              localField: "_id",
+              foreignField: "channel",
+              as:"Subscibers"
+            }
+          },
+          {
+            $lookup:{
+              from:"subscriptions",
+              localField: "_id",
+              foreignField: "subscriber",
+              as:"SubscibedTo"
+            },
+
+
+          },
+          {
+            isSubscribed:{
+              $cond:{
+                if:{
+                  $in:[req.user?._id,"$Subscibers.subscriber"]
+                },
+                then:true,
+                else:false
+              }
+
+            }
+          },
+          {
+             $addFields:{
+              subscriberCount:{
+                $size:"$Subscibers"
+              },
+              subscribedToCount:{
+                 $size:"$SubscibedTo"
+              }
+             }
+          },
+          {
+
+            $project:{
+              userName:1,
+              subscribedToCount:1,
+              subscribedToCount:1,
+              avatar:1,
+              coverImage:1,
+
+
+            }
+          }
+
+         
+        ])
+        if(!channel.length){
+          throw new ApiError(404,"channel not found")
+        }
+        return res.status(200).json(new ApiResponse("Channel recieved successfully",200,{channel}))
+
+
+
+
+      })
+      //getting the history
+      const watchHistorty=asyncHandler(async(req,res)=>{
+
+        const userId=req?.user?._id
+        if(!userId){
+          throw new ApiError(404,"Praameter not recieved from req.user in watch")
+        }
+        console.log("going inside pipeline")
+        const user=await User.aggregate([
+          {
+            $match:{
+              _id:new mongoose.Types.ObjectId(userId)
+            }
+
+          },
+          {
+
+            $lookup:{
+              from:"vedios",
+              localField: "watchHistory",
+              foreignField:"_id",
+              as: "watchedVedios",
+              pipeline:
+
+              [{
+                $lookup:{
+
+                  from:"users",
+                  localField:"owner",
+                  foreignField:"_id",
+                  as:"vedOwner",
+                  pipeline:[{
+
+                    $project:
+                    {
+
+                      userName:1,
+                      userFullName:1,
+                      avatar:1,
+                      coverImage:1,
+                      watchHistorty:1,
+                      
+                    }
+                  }]
+                }
+                 },{
+                  $addFields:{
+                    owner:{
+                      $first: "$vedOwner"
+                    }
+                  }
+                 }
+              ]
+      
+            },
+
+          }
+          
+        ])
+        return res.status(200).json(new ApiResponse("The exist is successfull",200,{user}))
+      })
+      
 
 export {userRegister,
-        userLogin,userLogOut,createNewRefreshToken,changeCurrentPassword,changeAvatar
+        userLogin
+        ,userLogOut
+        ,createNewRefreshToken
+        ,changeCurrentPassword
+        ,changeAvatar,
+        getChannel,
+        watchHistorty
       }  
 
 

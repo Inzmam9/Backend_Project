@@ -1,0 +1,11 @@
+-cannot destructure property Name etc mean the data is not recieved
+-if you are destructuring some feidls make sure to use same name written while returning/sending feidls to avoid errors
+
+- after calling the create newrefreshToken my jwt verify in logout was throwing invalid signature(means that jwt is not verified).
+the mistake: i was sending refresh token in place of accessToken
+-> not found module: error come if you are using type: module and while importing you must use .js in the end fro example
+"import ApiError from "./API_Error";" will throw error which can be resolve by replacing it with import "ApiError from "./API_Error.js";"
+
+-> MulterError: Unexpected field
+    at wrappedFileFilter : this error come if the name of incoming file from frontend and name in "upload.single("finename")" is not same
+    if the file from frontend is file and upload.single("avatar") it will throw error. keep both same
