@@ -186,9 +186,7 @@ const user=await User.findById(verifyToken?._id)
 if(!user){
   throw new ApiError(505,"user not found")
 }
-//const userDecodedToken=jwt.veri
- //console.log("\n\nPrinting databse token",user?.refreshTokens)
-// console.log("User mil gya")
+
  console.log("Printing resfrehToken ",incomingRefreshToken)
  console.log("Printing user reffresh",user?.refreshTokens)
 if(incomingRefreshToken!==user?.refreshTokens){
@@ -207,9 +205,7 @@ return res.status(200)
 .json(new ApiResponse("Refresh token updated successfully",200,{accessToken:accessToken,refreshToken:refreshToken}))
 
   
-// } catch (error) {
-//   throw new ApiError(503,"Something went wrong in createrefresh Token function")
-// }
+
 
 
 
