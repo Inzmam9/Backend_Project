@@ -122,9 +122,6 @@ try {
 
 
 
-              // } catch (error) {
-              //   throw new ApiError(400, "Failed to login the user ")
-              // }
 
 
                 }
