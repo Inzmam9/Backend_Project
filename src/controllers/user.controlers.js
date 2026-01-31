@@ -87,60 +87,7 @@ try {
    
         return {refreshToken, accessToken}
    
-    // }
-//   catch (error) {
-//     throw new ApiError(505," Some thing went wrong while generating access token")
-//  }
-    }
 
-
-    
-              // const  userLogin=asyncHandler(async(req,res)=>{
-                
-              //    try {
-                
-              //             const {userName, email, password}=  req.body
-              //             if (!(userName|| password)) {  
-              //                   throw new ApiError(505, "The password and username not recieved")
-              //             } 
-              //               console.log(userName,email,password)
-              //                   const  userSearch=await  User.findOne({
-              //                     $or: [{userName}, {email}]
-              //                   })
-
-              //                 if(!userSearch){
-              //                   throw new ApiError(500,"User is not registered")
-                                
-              //                 }
-              //                 console.log("Usser mill gya")
-                            
-              //                 const checkUser= await userSearch.isPasswordCorrect(password)
-              //                 if (!checkUser) {
-              //                             throw new ApiError(400,"Access denined ")
-              //                 } 
-              //                 console.log("Password is matched")
-                              
-              //                   const {refreshToken,accessToken}=await getAccessAndRefreshToken(userSearch._id)
-              //                   const loggedInUser= await User.findOne(userSearch._id).select("-password -refreshToken")
-              //                   const options={
-              //                     httpOnly:true,
-              //                     secure:true
-                                  
-              //                   }
-              //                   res.status(200).cookie("refreshToken",refreshToken, options).cookie("accessToken",accessToken).json(
-              //                     new ApiResponse("User logged in Succesfully",200,{user:loggedInUser,accessToken,refreshToken },)//sending tokens is good practice
-
-              //                     //Send the refresh token because it help in when reaching to mobile app dev/team 
-              //                   )
-                                
-                      
-              // } catch (error) 
-              //   {             
-              //   throw new ApiError(404,"An error in user login",error)
-
-
-              //   }
-              // }
               const userLogin=asyncHandler(async(req,res)=>{
 
                //try {
